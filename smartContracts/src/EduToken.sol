@@ -13,3 +13,5 @@ contract EduToken is SimpleERC20{
         mint(msg.sender, amount);
     }
 }
+
+// 0xE18eA458f28792D90bb2063A0A792d51D310207c

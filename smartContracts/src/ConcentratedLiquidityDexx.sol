@@ -165,3 +165,5 @@ contract ConcentratedLiquidityDEX {
         return (pools[poolId].totalLiquidity0, pools[poolId].totalLiquidity1, pools[poolId].feeGrowthGlobal0, pools[poolId].feeGrowthGlobal1, pools[poolId].token0, pools[poolId].token1);
     }
 }
+
+// 0x97ABC1e9c0d8e95d402343fE670010e2d6Ae1948

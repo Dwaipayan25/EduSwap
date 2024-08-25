@@ -6,6 +6,7 @@ import {Ownable} from "./Ownable.sol";
 
 contract EduMarketplace is Ownable {
     struct Listing {
+        uint256 listingId;
         address seller;
         address token;
         uint256 amount;
@@ -36,6 +37,7 @@ contract EduMarketplace is Ownable {
 
         // Create a new listing
         listings[listingCounter] = Listing({
+            listingId: listingCounter,
             seller: msg.sender,
             token: token,
             amount: amount,
@@ -104,3 +106,5 @@ contract EduMarketplace is Ownable {
 }
 
 // 0x8a3c4f9e0E9E18D4f35Ec2aBB59d0837f0f2096F
+
+// 0x5b7C7d990f85Dc199e5f1eA62a18f4D008151A9C

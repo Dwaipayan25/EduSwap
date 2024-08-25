@@ -41,7 +41,7 @@ function App() {
     setEduToken(eduToken);
     console.log("Edu Token Contract Loaded",eduToken);
 
-    const eduMarketPlace = new ethers.Contract("0x8a3c4f9e0E9E18D4f35Ec2aBB59d0837f0f2096F", EduMarketPlace.abi, signer);
+    const eduMarketPlace = new ethers.Contract("0x5b7C7d990f85Dc199e5f1eA62a18f4D008151A9C", EduMarketPlace.abi, signer);
     setEduMarketPlace(eduMarketPlace);
     console.log("Edu MarketPlace Contract Loaded",eduMarketPlace);
     setLoading(false);

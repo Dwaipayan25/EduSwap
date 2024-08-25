@@ -1,35 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import './Marketplace.css'; // Import the CSS file
-import EduToken from "../../contracts/EduToken.json"
+import EduToken from "../../contracts/EduToken.json";
 import { ethers } from 'ethers';
-
 
 const Marketplace = ({ eduToken, eduMarketPlace, account }) => {
     const [listings, setListings] = useState([]);
-    const [paymentToken, setPaymentToken] = useState(eduToken);
+    const [paymentToken, setPaymentToken] = useState(eduToken.address);
     const [tokenAddress, setTokenAddress] = useState('');
     const [amount, setAmount] = useState('');
     const [pricePerToken, setPricePerToken] = useState('');
 
     useEffect(() => {
-        console.log(eduMarketPlace,eduToken,account);
         fetchListings();
     }, []);
 
     const fetchListings = async () => {
         try {
             const activeListings = await eduMarketPlace.getListings();
+            console.log("Active Listings:", activeListings[0]);
+
+            if (activeListings[0].active === false) {
+                setListings([]);
+                return;
+            }
+
             const formattedListings = await Promise.all(
-                activeListings.map(async listing => {
+                activeListings.map(async (listing) => { 
                     const tokenName = await fetchTokenName(listing.token);
                     return {
-                        ...listing,
+                        listingId: listing.listingId,
+                        token: listing.token,
+                        shortToken: `${formatAddress(listing.token)} (${tokenName})`, // Add token name and short address here
                         amount: listing.amount.toString(),
                         pricePerToken: listing.pricePerToken.toString(),
-                        shortToken: `${formatAddress(listing.token)} (${tokenName})` // Add token name and short address here
+                        seller: listing.seller,
+                        active: listing.active
                     };
                 })
             );
+            // console.log("Listings:", formattedListings);
             setListings(formattedListings);
         } catch (error) {
             console.error("Error fetching listings:", error);
@@ -38,6 +47,11 @@ const Marketplace = ({ eduToken, eduMarketPlace, account }) => {
 
     const handleListToken = async () => {
         try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const tokenContract = new ethers.Contract(tokenAddress, EduToken.abi, signer);
+
+            await tokenContract.approve(eduMarketPlace.address, amount);
             await eduMarketPlace.listToken(tokenAddress, amount, pricePerToken);
             fetchListings(); // Refresh the listings after creating a new one
             setTokenAddress('');
@@ -48,9 +62,13 @@ const Marketplace = ({ eduToken, eduMarketPlace, account }) => {
         }
     };
 
-    const handlePurchase = async (listingId, pricePerToken, amount) => {
-        const totalCost = pricePerToken * amount;
+    const handlePurchase = async (tokenAddress, listingId, pricePerToken, amount) => {
+        const totalCost = (pricePerToken * amount).toString();
         try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const tokenContract = new ethers.Contract(paymentToken, EduToken.abi, signer);
+            await tokenContract.approve(eduMarketPlace.address, totalCost);
             await eduMarketPlace.purchaseToken(listingId, paymentToken, totalCost);
             fetchListings(); // Refresh the listings after purchase
         } catch (error) {
@@ -63,7 +81,6 @@ const Marketplace = ({ eduToken, eduMarketPlace, account }) => {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const tokenContract = new ethers.Contract(tokenAddress, EduToken.abi, provider);
             const tokenName = await tokenContract.name();
-            console.log("Token Name:", tokenName);
             return tokenName;
         } catch (error) {
             console.error("Error fetching token name:", error);
@@ -124,17 +141,19 @@ const Marketplace = ({ eduToken, eduMarketPlace, account }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {listings.map((listing, index) => (
-                            <tr key={index}>
+                        {listings
+                        .filter(listing => listing.active)
+                        .map((listing) => (
+                            <tr key={listing.listingId}>
                                 <td>{listing.shortToken}</td>
                                 <td>{listing.amount}</td>
                                 <td>{listing.pricePerToken}</td>
                                 <td>{listing.seller}</td>
                                 <td>
                                     {listing.seller.toLowerCase() !== account.toLowerCase() ? (
-                                        <button onClick={() => handlePurchase(listing.id, listing.pricePerToken, listing.amount)}>Purchase</button>
+                                        <button onClick={() => handlePurchase(listing.token, listing.listingId, listing.pricePerToken, listing.amount)}>Purchase</button>
                                     ) : (
-                                        <button onClick={() => handleCancel(listing.id)}>Cancel</button>
+                                        <button onClick={() => handleCancel(listing.listingId)}>Cancel</button>
                                     )}
                                 </td>
                             </tr>

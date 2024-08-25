@@ -34,6 +34,7 @@ contract EduMarketplaceTest is Test {
 
         // Retrieve listing details
         (
+            uint256 listingId,
             address seller,
             address token,
             uint256 amount,
@@ -67,6 +68,7 @@ contract EduMarketplaceTest is Test {
 
         // Retrieve listing details
         (
+            uint256 listingId,
             address seller,
             address token,
             uint256 amount,
@@ -94,6 +96,7 @@ contract EduMarketplaceTest is Test {
 
         // Retrieve listing details
         (
+            uint256 listingId,
             address seller,
             address token,
             uint256 amount,

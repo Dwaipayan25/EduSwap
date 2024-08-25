@@ -19,18 +19,17 @@ contract ConcentratedLiquidityDEXTest is Test {
 
         token0 = new EduToken("Token 0", "TK0", 1000000 ether);
         token1 = new EduToken("Token 1", "TK1", 1000000 ether);
-
-        // Mint tokens to user1 and user2
-        // vm.prank(user1);
-        // token0.mint(500 ether);
-        // token1.mint(500 ether);
-        // vm.stopPrank();
-        // vm.prank(user2);
-        // token0.mint(500 ether);
-        // token1.mint(500 ether);
         vm.stopPrank();
 
         poolId = dex.createPool(address(token0), address(token1));
+    }
+
+    function testGetPool() public{
+        poolId = dex.createPool(address(token0), address(token1));
+        poolId = dex.createPool(address(token0), address(token1));
+        poolId = dex.createPool(address(token0), address(token1));
+        dex.getPoolIds();
+        dex.getAllPools();
     }
 
     function testCreatePool() public {

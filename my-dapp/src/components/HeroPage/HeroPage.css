@@ -1,4 +1,5 @@
 .hero-page .section {
+    background-color: #caddef;
     display: flex;
     justify-content: space-between;
     padding: 2rem;
@@ -60,7 +61,7 @@
 
 .section2 img {
     width: 100%; /* Makes the image take full width of the box */
-    height: 200px; /* Sets a fixed height for all images */
+    height: 250px; /* Sets a fixed height for all images */
     object-fit: cover; /* Ensures the image covers the set area without distortion */
     border-radius: 5px;
 }

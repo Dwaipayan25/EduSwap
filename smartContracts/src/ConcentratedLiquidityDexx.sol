@@ -31,6 +31,7 @@ contract ConcentratedLiquidityDEX {
     }
 
     mapping(bytes32 => Pool) public pools;
+    bytes32[] public poolIds;
     uint256 public constant ARRAY_SIZE = 100001; // Size of the array
 
     uint256 public feePercent = 3000; // 0.3% fee
@@ -42,6 +43,7 @@ contract ConcentratedLiquidityDEX {
         pools[poolId].liquidityArray1 = new int256[](ARRAY_SIZE);
         pools[poolId].token0 = token0;
         pools[poolId].token1 = token1;
+        poolIds.push(poolId);
     }
 
     function addLiquidity(bytes32 poolId, uint256 tick1, uint256 tick2, uint128 amount, bool isToken0) external {
@@ -164,8 +166,36 @@ contract ConcentratedLiquidityDEX {
     ) {
         return (pools[poolId].totalLiquidity0, pools[poolId].totalLiquidity1, pools[poolId].feeGrowthGlobal0, pools[poolId].feeGrowthGlobal1, pools[poolId].token0, pools[poolId].token1);
     }
+
+    function getPoolIds() external view returns (bytes32[] memory) {
+        return poolIds;
+    }
+
+    function getAllPools() external view returns (
+        bytes32[] memory ids,
+        address[] memory token0Addresses,
+        address[] memory token1Addresses,
+        uint256[] memory totalLiquidity0s,
+        uint256[] memory totalLiquidity1s
+    ) {
+        uint256 length = poolIds.length;
+        ids = new bytes32[](length);
+        token0Addresses = new address[](length);
+        token1Addresses = new address[](length);
+        totalLiquidity0s = new uint256[](length);
+        totalLiquidity1s = new uint256[](length);
+
+        for (uint256 i = 0; i < length; i++) {
+            bytes32 poolId = poolIds[i];
+            Pool storage pool = pools[poolId];
+
+            ids[i] = poolId;
+            token0Addresses[i] = pool.token0;
+            token1Addresses[i] = pool.token1;
+            totalLiquidity0s[i] = pool.totalLiquidity0;
+            totalLiquidity1s[i] = pool.totalLiquidity1;
+        }
+    }
 }
 
-// 0x97ABC1e9c0d8e95d402343fE670010e2d6Ae1948
-
-// 0x4813c9483c877a6f328bB43eC9793A828244A5E6
+// 0x8b4C7839B033AFc5B51339b73d1f08C1B4e084d4

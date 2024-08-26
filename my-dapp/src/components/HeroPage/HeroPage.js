@@ -22,15 +22,15 @@ function HeroPage() {
             <div className="section section2">
                 <div className="box">
                     <img src={image1} alt="Description 1" />
-                    <p>Chainlink's price feeds are used to obtain the real-time value of ETH for accurately converting payments into ScrollETH based on the current market rates</p>
+                    <p>This project is on the Open Campus network to leverage blockchain technology for decentralized education, enabling secure, transparent, and equitable access to educational resources and financial tools.</p>
                 </div>
                 <div className="box">
                     <img src={image2} alt="Description 2" />
-                    <p>Scroll handles contract deployment and transaction execution</p>
+                    <p>This project is similar to Uniswap V3 in offering concentrated liquidity but goes further by integrating educational incentives and features, making it more aligned with the educational ecosystem on the Open Campus network.</p>
                 </div>
                 <div className="box">
                     <img src={image3} alt="Description 3" />
-                    <p>Sindri is employed to design the zero-knowledge circuits essential for securely generating cryptographic proofs and hashes.</p>
+                    <p>The Educational Token marketplace in this project facilitates the exchange of educational assets, allowing users to buy, sell, and trade tokens that represent educational resources and achievements.</p>
                 </div>
             </div>
         </div>

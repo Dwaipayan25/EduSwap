@@ -19,6 +19,8 @@ const Pool = ({ dexContract, eduToken, account }) => {
     const [amount, setAmount] = useState('');
     const [isToken0, setIsToken0] = useState(true);
     const [concentrationsData, setConcentrationsData] = useState({ labels: [], data: [] });
+    const [token0Name, setToken0Name] = useState('Token 0');
+    const [token1Name, setToken1Name] = useState('Token 1');
 
     useEffect(() => {
         fetchPoolIds();
@@ -40,16 +42,37 @@ const Pool = ({ dexContract, eduToken, account }) => {
         }
     };
 
+    const fetchTokenName = async (tokenAddress) => {
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const tokenContract = new ethers.Contract(tokenAddress, EduToken.abi, provider);
+            const tokenName = await tokenContract.name();
+            return tokenName;
+        } catch (error) {
+            console.error("Error fetching token name:", error);
+            return "Unknown Token"; // Fallback if token name can't be fetched
+        }
+    };
+
     const fetchPoolDetails = async () => {
         try {
             const pool = await dexContract.getPool(selectedPool);
+            const token0 = pool.token0;
+            const token1 = pool.token1;
+
+            const token0Name = await fetchTokenName(token0);
+            const token1Name = await fetchTokenName(token1);
+
+            setToken0Name(token0Name);
+            setToken1Name(token1Name);
+
             setPoolDetails({
                 totalLiquidity0: pool.totalLiquidity0.toString(),
                 totalLiquidity1: pool.totalLiquidity1.toString(),
                 feeGrowthGlobal0: pool.feeGrowthGlobal0.toString(),
                 feeGrowthGlobal1: pool.feeGrowthGlobal1.toString(),
-                token0: pool.token0,
-                token1: pool.token1,
+                token0,
+                token1,
             });
         } catch (error) {
             console.error("Error fetching pool details:", error);
@@ -164,12 +187,12 @@ const Pool = ({ dexContract, eduToken, account }) => {
             {poolDetails && (
                 <div className="pool-details">
                     <h3>Pool Details</h3>
-                    <p><strong>Token 0:</strong> {poolDetails.token0}</p>
-                    <p><strong>Total Liquidity (Token 0):</strong> {poolDetails.totalLiquidity0}</p>
-                    <p><strong>Token 1:</strong> {poolDetails.token1}</p>
-                    <p><strong>Total Liquidity (Token 1):</strong> {poolDetails.totalLiquidity1}</p>
-                    <p><strong>Fee Growth Global (Token 0):</strong> {poolDetails.feeGrowthGlobal0}</p>
-                    <p><strong>Fee Growth Global (Token 1):</strong> {poolDetails.feeGrowthGlobal1}</p>
+                    <p><strong>{token0Name}:</strong> {poolDetails.token0}</p>
+                    <p><strong>Total Liquidity ({token0Name}):</strong> {poolDetails.totalLiquidity0}</p>
+                    <p><strong>{token1Name}:</strong> {poolDetails.token1}</p>
+                    <p><strong>Total Liquidity ({token1Name}):</strong> {poolDetails.totalLiquidity1}</p>
+                    {/* <p><strong>Fee Growth Global ({token0Name}):</strong> {poolDetails.feeGrowthGlobal0}</p>
+                    <p><strong>Fee Growth Global ({token1Name}):</strong> {poolDetails.feeGrowthGlobal1}</p> */}
                 </div>
             )}
 
@@ -194,8 +217,8 @@ const Pool = ({ dexContract, eduToken, account }) => {
                     onChange={(e) => setAmount(e.target.value)}
                 />
                 <select value={isToken0} onChange={(e) => setIsToken0(e.target.value === 'true')}>
-                    <option value="true">Token 0</option>
-                    <option value="false">Token 1</option>
+                    <option value="true">{token0Name}</option>
+                    <option value="false">{token1Name}</option>
                 </select>
                 <button onClick={handleAddLiquidity}>Add Liquidity</button>
                 <button onClick={handleRemoveLiquidity}>Remove Liquidity</button>

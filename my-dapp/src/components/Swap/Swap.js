@@ -10,6 +10,8 @@ const Swap = ({ dexContract, account }) => {
     const [inputAmount, setInputAmount] = useState('');
     const [isToken0, setIsToken0] = useState(true);
     const [estimatedOutput, setEstimatedOutput] = useState('');
+    const [token0Name, setToken0Name] = useState('Token 0');
+    const [token1Name, setToken1Name] = useState('Token 1');
 
     useEffect(() => {
         fetchPoolIds();
@@ -31,16 +33,37 @@ const Swap = ({ dexContract, account }) => {
         }
     };
 
+    const fetchTokenName = async (tokenAddress) => {
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const tokenContract = new ethers.Contract(tokenAddress, EduToken.abi, provider);
+            const tokenName = await tokenContract.name();
+            return tokenName;
+        } catch (error) {
+            console.error("Error fetching token name:", error);
+            return "Unknown Token"; // Fallback if token name can't be fetched
+        }
+    };
+
     const fetchPoolDetails = async () => {
         try {
             const pool = await dexContract.getPool(selectedPool);
+            const token0 = pool.token0;
+            const token1 = pool.token1;
+
+            const token0Name = await fetchTokenName(token0);
+            const token1Name = await fetchTokenName(token1);
+
+            setToken0Name(token0Name);
+            setToken1Name(token1Name);
+
             setPoolDetails({
                 totalLiquidity0: ethers.BigNumber.from(pool.totalLiquidity0),
                 totalLiquidity1: ethers.BigNumber.from(pool.totalLiquidity1),
                 feeGrowthGlobal0: pool.feeGrowthGlobal0.toString(),
                 feeGrowthGlobal1: pool.feeGrowthGlobal1.toString(),
-                token0: pool.token0,
-                token1: pool.token1,
+                token0,
+                token1,
             });
         } catch (error) {
             console.error('Error fetching pool details:', error);
@@ -107,20 +130,19 @@ const Swap = ({ dexContract, account }) => {
             {poolDetails && (
                 <div className="pool-details">
                     <h3>Pool Information</h3>
-                    <p><strong>Token 0 Address:</strong> {poolDetails.token0}</p>
-                    <p><strong>Total Liquidity (Token 0):</strong> {poolDetails.totalLiquidity0.toString()}</p>
-                    <p><strong>Token 1 Address:</strong> {poolDetails.token1}</p>
-                    <p><strong>Total Liquidity (Token 1):</strong> {poolDetails.totalLiquidity1.toString()}</p>
-                    <p><strong>Fee Growth Global (Token 0):</strong> {poolDetails.feeGrowthGlobal0}</p>
-                    <p><strong>Fee Growth Global (Token 1):</strong> {poolDetails.feeGrowthGlobal1}</p>
+                    <p><strong>{token0Name} Address:</strong> {poolDetails.token0}</p>
+                    <p><strong>Total Liquidity ({token0Name}):</strong> {poolDetails.totalLiquidity0.toString()}</p>
+                    <p><strong>{token1Name} Address:</strong> {poolDetails.token1}</p>
+                    <p><strong>Total Liquidity ({token1Name}):</strong> {poolDetails.totalLiquidity1.toString()}</p>
+                    
                 </div>
             )}
 
             <div className="token-swap-form">
                 <h3>Swap Tokens</h3>
                 <select value={isToken0} onChange={(e) => setIsToken0(e.target.value === 'true')}>
-                    <option value="true">Token 0 to Token 1</option>
-                    <option value="false">Token 1 to Token 0</option>
+                    <option value="true">{token0Name} to {token1Name}</option>
+                    <option value="false">{token1Name} to {token0Name}</option>
                 </select>
                 <input
                     type="number"

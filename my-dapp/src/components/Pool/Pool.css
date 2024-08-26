@@ -1,0 +1,77 @@
+.pool-section {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.pool-creation-form,
+.pool-selection,
+.pool-details,
+.liquidity-management,
+.fees-collection,
+.liquidity-concentration {
+    margin-bottom: 20px;
+}
+
+.pool-creation-form input,
+.pool-selection select,
+.liquidity-management input,
+.liquidity-management select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    margin-bottom: 10px; /* Adds space below the buttons */
+}
+
+.pool-creation-form button {
+    background-color: #007bff; /* Ensure consistency with other buttons */
+    color: white;
+    margin-top: 10px; /* Adds space above the button */
+}
+
+.liquidity-management button {
+    background-color: #007bff; /* Consistent color for liquidity management buttons */
+    color: white;
+    margin-right: 10px; /* Adds space between buttons */
+}
+
+.liquidity-management button:last-child {
+    margin-right: 0; /* Removes the right margin for the last button */
+}
+
+.fees-collection button {
+    background-color: #28a745;
+    color: white;
+}
+
+.liquidity-concentration table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.liquidity-concentration th,
+.liquidity-concentration td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.liquidity-concentration th {
+    background-color: #f8f8f8;
+}
+
+.liquidity-concentration p {
+    margin-top: 10px;
+}

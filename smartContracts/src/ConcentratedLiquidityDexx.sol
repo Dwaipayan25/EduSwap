@@ -17,8 +17,8 @@ contract ConcentratedLiquidityDEX {
     }
 
     struct Pool {
-        int256[] liquidityArray0;
-        int256[] liquidityArray1;
+        mapping(uint256 => int256) liquidityConcentration0;
+        mapping(uint256 => int256) liquidityConcentration1;
         mapping(uint256 => Ticks) ticks0; // Map from tick to liquidity for token0
         mapping(uint256 => Ticks) ticks1; // Map from tick to liquidity for token1
         mapping(address => Position) positions; // Map from address to positions
@@ -32,15 +32,12 @@ contract ConcentratedLiquidityDEX {
 
     mapping(bytes32 => Pool) public pools;
     bytes32[] public poolIds;
-    uint256 public constant ARRAY_SIZE = 100001; // Size of the array
 
     uint256 public feePercent = 3000; // 0.3% fee
 
     function createPool(address token0, address token1) external returns (bytes32 poolId) {
         require(token0 != token1, "Identical tokens");
         poolId = keccak256(abi.encodePacked(token0, token1));
-        pools[poolId].liquidityArray0 = new int256[](ARRAY_SIZE);
-        pools[poolId].liquidityArray1 = new int256[](ARRAY_SIZE);
         pools[poolId].token0 = token0;
         pools[poolId].token1 = token1;
         poolIds.push(poolId);
@@ -59,18 +56,14 @@ contract ConcentratedLiquidityDEX {
             pool.ticks0[tick1].liquidityGross += int256(amountPerTick);
             pool.ticks0[tick2 + 1].liquidityGross -= int256(amountPerTick);
             pool.totalLiquidity0 += amount;
-            pool.liquidityArray0[tick1] += int256(amountPerTick);
-            if (tick2 + 1 < ARRAY_SIZE) {
-                pool.liquidityArray0[tick2 + 1] -= int256(amountPerTick);
-            }
+            pool.liquidityConcentration0[tick1] += int256(amountPerTick);
+            pool.liquidityConcentration0[tick2 + 1] -= int256(amountPerTick);
         } else {
             pool.ticks1[tick1].liquidityGross += int256(amountPerTick);
             pool.ticks1[tick2 + 1].liquidityGross -= int256(amountPerTick);
             pool.totalLiquidity1 += amount;
-            pool.liquidityArray1[tick1] += int256(amountPerTick);
-            if (tick2 + 1 < ARRAY_SIZE) {
-                pool.liquidityArray1[tick2 + 1] -= int256(amountPerTick);
-            }
+            pool.liquidityConcentration1[tick1] += int256(amountPerTick);
+            pool.liquidityConcentration1[tick2 + 1] -= int256(amountPerTick);
         }
 
         Position storage position = pool.positions[msg.sender];
@@ -95,18 +88,14 @@ contract ConcentratedLiquidityDEX {
             pool.ticks0[position.lowerTick].liquidityGross -= int256(amountPerTick);
             pool.ticks0[position.upperTick + 1].liquidityGross += int256(amountPerTick);
             pool.totalLiquidity0 -= amount;
-            pool.liquidityArray0[position.lowerTick] -= int256(amountPerTick);
-            if (position.upperTick + 1 < ARRAY_SIZE) {
-                pool.liquidityArray0[position.upperTick + 1] += int256(amountPerTick);
-            }
+            pool.liquidityConcentration0[position.lowerTick] -= int256(amountPerTick);
+            pool.liquidityConcentration0[position.upperTick + 1] += int256(amountPerTick);
         } else {
             pool.ticks1[position.lowerTick].liquidityGross -= int256(amountPerTick);
             pool.ticks1[position.upperTick + 1].liquidityGross += int256(amountPerTick);
             pool.totalLiquidity1 -= amount;
-            pool.liquidityArray1[position.lowerTick] -= int256(amountPerTick);
-            if (position.upperTick + 1 < ARRAY_SIZE) {
-                pool.liquidityArray1[position.upperTick + 1] += int256(amountPerTick);
-            }
+            pool.liquidityConcentration1[position.lowerTick] -= int256(amountPerTick);
+            pool.liquidityConcentration1[position.upperTick + 1] += int256(amountPerTick);
         }
 
         position.liquidity -= amount;
@@ -131,8 +120,12 @@ contract ConcentratedLiquidityDEX {
 
         if (zeroForOne) {
             pool.feeGrowthGlobal0 += fee / pool.totalLiquidity0;
+            pool.totalLiquidity0 += amountIn;
+            pool.totalLiquidity1 -= amountOut;
         } else {
             pool.feeGrowthGlobal1 += fee / pool.totalLiquidity1;
+            pool.totalLiquidity1 += amountIn;
+            pool.totalLiquidity0 -= amountOut;
         }
 
         IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
@@ -151,9 +144,29 @@ contract ConcentratedLiquidityDEX {
         IERC20(pool.token1).transfer(msg.sender, feeShare1);
     }
 
-    function getLiquidityConcentration(bytes32 poolId, bool isToken0) external view returns (int256[] memory concentrations) {
+    uint256 constant ARRAY_SIZE = 1000;
+    function getLiquidityConcentration(bytes32 poolId, bool isToken0) external view returns (uint256[] memory ticks, int256[] memory concentrations) {
         Pool storage pool = pools[poolId];
-        return isToken0 ? pool.liquidityArray0 : pool.liquidityArray1;
+        uint256 count = 0;
+        uint256[] memory tempTicks = new uint256[](ARRAY_SIZE);
+        int256[] memory tempConcentrations = new int256[](ARRAY_SIZE);
+
+        for (uint256 i = 0; i < ARRAY_SIZE; i++) {
+            int256 concentration = isToken0 ? pool.liquidityConcentration0[i] : pool.liquidityConcentration1[i];
+            if (concentration != 0) {
+                tempTicks[count] = i;
+                tempConcentrations[count] = concentration;
+                count++;
+            }
+        }
+
+        ticks = new uint256[](count);
+        concentrations = new int256[](count);
+
+        for (uint256 i = 0; i < count; i++) {
+            ticks[i] = tempTicks[i];
+            concentrations[i] = tempConcentrations[i];
+        }
     }
 
     function getPool(bytes32 poolId) external view returns (
@@ -198,4 +211,4 @@ contract ConcentratedLiquidityDEX {
     }
 }
 
-// 0x8b4C7839B033AFc5B51339b73d1f08C1B4e084d4
+// 0x01CdB52dA7515DD5E2674149695A2D99b35D6684

@@ -22,6 +22,12 @@
     cursor: pointer;
 }
 
+.navbar-buttons .connected-wallet {
+    background-color: #28a745; /* Green background for connected wallet */
+    color: white;
+    font-weight: bold;
+}
+
 .navbar-buttons button:hover {
     background-color: #0056b3;
 }

@@ -33,7 +33,7 @@ function App() {
   }
 
   const loadContracts = async (signer) => {
-    const concentratedLiquidityDex = new ethers.Contract("0x97ABC1e9c0d8e95d402343fE670010e2d6Ae1948", ConcentratedLiquidityDex.abi, signer);
+    const concentratedLiquidityDex = new ethers.Contract("0x01cdb52da7515dd5e2674149695a2d99b35d6684", ConcentratedLiquidityDex.abi, signer);
     setConcentratedLiquidityDex(concentratedLiquidityDex);
     console.log("Concentrated Liquidity DEX Contract Loaded",concentratedLiquidityDex);
 
@@ -60,8 +60,8 @@ function App() {
         (<Routes>
           <Route path="/" element={<HeroPage />} />
           <Route path="/marketplace" element={<Marketplace eduToken={eduToken} eduMarketPlace={eduMarketPlace} account={account} />} />
-          <Route path="/swap" element={<Swap eduToken={eduToken} eduMarketPlace={eduMarketPlace} />} />
-          <Route path="/pool" element={<Pool eduToken={eduToken} eduMarketPlace={eduMarketPlace} />} />
+          <Route path="/swap" element={<Swap dexContract={concentratedLiquidityDex} eduToken={eduToken} account={account} />} />
+          <Route path="/pool" element={<Pool  dexContract={concentratedLiquidityDex} eduToken={eduToken} account={account}/>} />
         </Routes>)
       }
       </BrowserRouter>

@@ -51,6 +51,13 @@ contract ConcentratedLiquidityDEXTest is Test {
         assertEq(token11, address(token1));
     }
 
+    function testCreate2Pools() public {
+        vm.startPrank(user1);
+        bytes32 poolId1 = dex.createPool(address(token0), address(token1));
+        bytes32 poolId2 = dex.createPool(address(token0), address(token1));
+        vm.stopPrank();
+    }
+
     function testAddLiquidityToken0() public {
         vm.startPrank(user1);
         token0.mint(500 ether);

@@ -33,7 +33,7 @@ function App() {
   }
 
   const loadContracts = async (signer) => {
-    const concentratedLiquidityDex = new ethers.Contract("0x01cdb52da7515dd5e2674149695a2d99b35d6684", ConcentratedLiquidityDex.abi, signer);
+    const concentratedLiquidityDex = new ethers.Contract("0x36CC7645Dfdf2707D55f96b235992B2Bd6265792", ConcentratedLiquidityDex.abi, signer);
     setConcentratedLiquidityDex(concentratedLiquidityDex);
     console.log("Concentrated Liquidity DEX Contract Loaded",concentratedLiquidityDex);
 

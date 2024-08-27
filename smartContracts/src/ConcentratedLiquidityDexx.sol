@@ -34,13 +34,15 @@ contract ConcentratedLiquidityDEX {
     bytes32[] public poolIds;
 
     uint256 public feePercent = 3000; // 0.3% fee
+    uint256 counter = 0;
 
     function createPool(address token0, address token1) external returns (bytes32 poolId) {
         require(token0 != token1, "Identical tokens");
-        poolId = keccak256(abi.encodePacked(token0, token1));
+        poolId = keccak256(abi.encodePacked(token0, token1, counter));
         pools[poolId].token0 = token0;
         pools[poolId].token1 = token1;
         poolIds.push(poolId);
+        counter++;
     }
 
     function addLiquidity(bytes32 poolId, uint256 tick1, uint256 tick2, uint128 amount, bool isToken0) external {
@@ -211,4 +213,4 @@ contract ConcentratedLiquidityDEX {
     }
 }
 
-// 0x01CdB52dA7515DD5E2674149695A2D99b35D6684
+// 0x36CC7645Dfdf2707D55f96b235992B2Bd6265792

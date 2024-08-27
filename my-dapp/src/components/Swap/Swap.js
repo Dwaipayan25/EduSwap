@@ -12,6 +12,7 @@ const Swap = ({ dexContract, account }) => {
     const [estimatedOutput, setEstimatedOutput] = useState('');
     const [token0Name, setToken0Name] = useState('Token 0');
     const [token1Name, setToken1Name] = useState('Token 1');
+    const [poolInfo, setPoolInfo] = useState([]);
 
     useEffect(() => {
         fetchPoolIds();
@@ -27,6 +28,19 @@ const Swap = ({ dexContract, account }) => {
     const fetchPoolIds = async () => {
         try {
             const ids = await dexContract.getPoolIds();
+            const pools = await Promise.all(
+                ids.map(async (id) => {
+                    const pool = await dexContract.getPool(id);
+                    const token0Name = await fetchTokenName(pool.token0);
+                    const token1Name = await fetchTokenName(pool.token1);
+                    return {
+                        id,
+                        token0Name,
+                        token1Name
+                    };
+                })
+            );
+            setPoolInfo(pools);
             setPoolIds(ids);
         } catch (error) {
             console.error('Error fetching pool IDs:', error);
@@ -119,9 +133,9 @@ const Swap = ({ dexContract, account }) => {
                 <h3>Select Pool</h3>
                 <select value={selectedPool} onChange={(e) => setSelectedPool(e.target.value)}>
                     <option value="" disabled>Select a Pool</option>
-                    {poolIds.map((id) => (
-                        <option key={id} value={id}>
-                            {id}
+                    {poolInfo.map((pool) => (
+                        <option key={pool.id} value={pool.id}>
+                            {pool.id} ({pool.token0Name} / {pool.token1Name})
                         </option>
                     ))}
                 </select>
@@ -134,7 +148,6 @@ const Swap = ({ dexContract, account }) => {
                     <p><strong>Total Liquidity ({token0Name}):</strong> {poolDetails.totalLiquidity0.toString()}</p>
                     <p><strong>{token1Name} Address:</strong> {poolDetails.token1}</p>
                     <p><strong>Total Liquidity ({token1Name}):</strong> {poolDetails.totalLiquidity1.toString()}</p>
-                    
                 </div>
             )}
 

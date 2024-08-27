@@ -50,7 +50,22 @@ EduSwap is a decentralized exchange (DEX) and marketplace specifically tailored 
 4. **Execute Swap**: Users complete the swap transaction, exchanging one token for another.
 
 ## 4. Diagram
-![EduSwap Images](link_to_your_diagram_image)
+### EduSwap Images
+
+<div align="center">
+    <table>
+        <tr>
+            <td><img src="https://github.com/user-attachments/assets/d721958b-7a39-42c9-a63b-afc8c002ea3d" alt="Screenshot 1" width="500"/></td>
+            <td><img src="https://github.com/user-attachments/assets/893cbc48-f5c1-4e46-85be-d524c702cc6a" alt="Screenshot 2" width="500"/></td>
+        </tr>
+        <tr>
+            <td><img src="https://github.com/user-attachments/assets/4d7fba06-1ed5-43ef-a56d-55afdabdc85e" alt="Screenshot 3" width="500"/></td>
+            <td><img src="https://github.com/user-attachments/assets/85b1879e-101b-4a0d-ab26-d32b5d63aa8f" alt="Screenshot 4" width="500"/></td>
+        </tr>
+    </table>
+</div>
+
+
 
 ## 5. Brief Overview of Technologies Used in EduSwap
 
